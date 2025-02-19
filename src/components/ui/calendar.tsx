@@ -1,4 +1,5 @@
 import * as React from "react"
+import type { StyledComponent } from "react-day-picker"
 import { DayPicker } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
@@ -58,11 +59,11 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        IconLeft: (props) => (
-          <ChevronLeftIcon {...props} />
+        IconLeft: ({ ...props }: StyledComponent) => (
+          <ChevronLeftIcon className={cn("h-4 w-4", props.className)} />
         ),
-        IconRight: (props) => (
-          <ChevronRightIcon {...props} />
+        IconRight: ({ ...props }: StyledComponent) => (
+          <ChevronRightIcon className={cn("h-4 w-4", props.className)} />
         ),
       }}
       {...props}
