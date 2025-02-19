@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { format, subDays } from 'date-fns';
 import { arSA } from 'date-fns/locale';
 import { DateRange } from 'react-day-picker';
