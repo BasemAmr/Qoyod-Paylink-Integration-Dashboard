@@ -13,9 +13,9 @@ function App() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar 
-        onLogout={() => setIsAuthenticated(false)} 
+    <div className="flex h-screen bg-gray-100" dir="rtl" lang="ar"> {/* Arabic and RTL added to the container */}
+      <Sidebar
+        onLogout={() => setIsAuthenticated(false)}
         onNavigate={setCurrentView}
         currentView={currentView}
       />

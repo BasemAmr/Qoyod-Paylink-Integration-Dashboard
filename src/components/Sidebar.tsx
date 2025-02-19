@@ -10,32 +10,32 @@ interface SidebarProps {
 
 export function Sidebar({ onLogout, onNavigate, currentView }: SidebarProps) {
   return (
-    <div className="w-64 bg-white border-r h-full">
+    <div className="w-64 bg-white border-r h-full" dir="rtl" lang="ar"> {/* RTL and lang attributes */}
       <div className="p-6">
-        <h2 className="text-lg font-semibold text-gray-900">Qoyod-Payment Integration</h2>
+        <h2 className="text-lg font-semibold text-gray-900 text-right">{`نظام تكامل قيود-المدفوعات`}</h2> {/* Arabic title */}
       </div>
       <nav className="space-y-2 px-4">
-        <SidebarItem 
-          icon={Home} 
-          onClick={() => onNavigate('home')} 
+        <SidebarItem
+          icon={Home}
+          onClick={() => onNavigate('home')}
           active={currentView === 'home'}
         >
-          Home
+          {`الرئيسية`} {/* Arabic: Home */}
         </SidebarItem>
-        <SidebarItem 
-          icon={Package} 
+        <SidebarItem
+          icon={Package}
           onClick={() => onNavigate('products')}
           active={currentView === 'products'}
         >
-          Product Accounts
+          {`حسابات المنتجات`} {/* Arabic: Product Accounts */}
         </SidebarItem>
         <Button
           variant="ghost"
-          className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+          className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50 flex-row-reverse" // Reversed flex direction for icon on left
           onClick={onLogout}
         >
-          <LogOut className="mr-2 h-4 w-4" />
-          Logout
+          <LogOut className="ml-2 h-4 w-4" /> {/* Moved icon to the left using ml-2 */}
+          {`تسجيل الخروج`} {/* Arabic: Logout */}
         </Button>
       </nav>
     </div>
@@ -54,13 +54,13 @@ function SidebarItem({ icon: Icon, children, active, onClick }: SidebarItemProps
     <button
       onClick={onClick}
       className={cn(
-        'flex items-center w-full px-4 py-2 text-sm font-medium rounded-md',
+        'flex items-center w-full px-4 py-2 text-sm font-medium rounded-md flex-row-reverse', // Reversed flex direction for items
         active
           ? 'bg-gray-100 text-gray-900'
           : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
       )}
     >
-      <Icon className="mr-3 h-4 w-4" />
+      <Icon className="ml-3 h-4 w-4" /> {/* Adjusted margin for icon on the left */}
       {children}
     </button>
   );

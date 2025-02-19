@@ -45,15 +45,15 @@ export function LogEntry({ log }: LogEntryProps) {
             </span>
           </div>
           <span className="text-sm text-gray-500">
-            {new Date(log.timestamp).toLocaleString('ar-SA')}
+            {new Date(log.timestamp).toLocaleString('ar-SA')} {/* Arabic locale for date */}
           </span>
         </div>
-        <p className="text-gray-600" dir="rtl">
+        <p className="text-gray-600 text-right" dir="rtl"> {/* Arabic text alignment */}
           {log.message}
         </p>
         {log.qoyodInvoiceId && (
-          <p className="text-sm text-gray-500">
-            Qoyod Invoice ID: {log.qoyodInvoiceId}
+          <p className="text-sm text-gray-500 text-right" dir="rtl"> {/* Arabic text alignment */}
+            {`معرف فاتورة قيود: ${log.qoyodInvoiceId}`} {/* Arabic: Qoyod Invoice ID: */}
           </p>
         )}
       </div>

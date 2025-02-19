@@ -271,35 +271,35 @@ export function ProductForm() {
   };
 
   return (
-    <div className="flex-1 p-8 overflow-auto">
+    <div className="flex-1 p-8 overflow-auto" dir="rtl" lang="ar">
       <Card>
         <CardHeader>
-          <CardTitle>Product & Teacher Management</CardTitle>
+          <CardTitle>إدارة المنتجات والمدرسين</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="products" className="space-y-6">
             <TabsList>
-              <TabsTrigger value="products">Products</TabsTrigger>
-              <TabsTrigger value="teachers">Teachers</TabsTrigger>
+              <TabsTrigger value="products">المنتجات</TabsTrigger>
+              <TabsTrigger value="teachers">المدرسين</TabsTrigger>
             </TabsList>
 
             <TabsContent value="products">
               <form onSubmit={handleProductSubmit} className="space-y-6">
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="productName">Product Name</Label>
+                    <Label htmlFor="productName">اسم المنتج</Label>
                     <Input
                       id="productName"
                       value={productForm.productName}
                       onChange={(e) =>
                         setProductForm({ ...productForm, productName: e.target.value })
                       }
-                      placeholder="Enter product name"
+                      placeholder="أدخل اسم المنتج"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="productRevenueAccountId">
-                      Product Revenue Account ID
+                      معرف حساب إيرادات المنتج
                     </Label>
                     <Input
                       id="productRevenueAccountId"
@@ -311,11 +311,11 @@ export function ProductForm() {
                           productRevenueAccountId: e.target.value ? Number(e.target.value) : null,
                         })
                       }
-                      placeholder="Enter Account ID"
+                      placeholder="أدخل معرف الحساب"
                     />
                   </div>
                   <div className="col-span-2 space-y-4">
-                    <Label>Select Teacher</Label>
+                    <Label>اختر المدرس</Label>
                     <RadioGroup
                       value={selectedTeacherId}
                       onValueChange={setSelectedTeacherId}
@@ -327,8 +327,8 @@ export function ProductForm() {
                           <Label htmlFor={teacher.id} className="flex-1">
                             <div className="font-medium">{teacher.name}</div>
                             <div className="text-sm text-gray-500">
-                              Commission: {teacher.teacherCommissionExpenseAccountId} |
-                              Percentage: {teacher.teacherPercentage}%
+                              العمولة: {teacher.teacherCommissionExpenseAccountId} |
+                              النسبة: {teacher.teacherPercentage}%
                             </div>
                           </Label>
                         </div>
@@ -344,7 +344,7 @@ export function ProductForm() {
                       onClick={() => setShowAdvanced(!showAdvanced)}
                       className="w-full flex items-center justify-center text-gray-600 hover:text-gray-900"
                     >
-                      Advanced Settings
+                      إعدادات متقدمة
                       {showAdvanced ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
                     </Button>
                   </div>
@@ -354,7 +354,7 @@ export function ProductForm() {
                     <div className="col-span-2 space-y-4 border-t pt-4">
                       <div className="space-y-2">
                         <Label htmlFor="customTeacherPercentage">
-                          Custom Teacher Percentage (Overrides Default)
+                          نسبة المدرس المخصصة (تتجاوز الافتراضي)
                         </Label>
                         <Input
                           id="customTeacherPercentage"
@@ -369,14 +369,14 @@ export function ProductForm() {
                               teacherPercentage: value
                             }));
                           }}
-                          placeholder="Enter custom percentage"
+                          placeholder="أدخل النسبة المخصصة"
                         />
                       </div>
                     </div>
                   )}
                 </div>
                 <Button type="submit" className="w-full">
-                  {editingProduct ? 'Update Product' : 'Add Product'}
+                  {editingProduct ? 'تحديث المنتج' : 'إضافة منتج'}
                   {editingProduct ? (
                     <Pencil className="ml-2 h-4 w-4" />
                   ) : (
@@ -388,14 +388,14 @@ export function ProductForm() {
               <Table className="mt-8">
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Product Name</TableHead>
-                    <TableHead>Revenue Account</TableHead>
-                    <TableHead>Commission Account</TableHead>
-                    <TableHead>Percentage Account</TableHead>
-                    <TableHead>Teacher %</TableHead>
-                    <TableHead>Liability Account</TableHead>
-                    <TableHead>Coupon Account</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead>اسم المنتج</TableHead>
+                    <TableHead>حساب الإيرادات</TableHead>
+                    <TableHead>حساب العمولة</TableHead>
+                    <TableHead>حساب النسبة</TableHead>
+                    <TableHead>نسبة المدرس</TableHead>
+                    <TableHead>حساب المسؤولية</TableHead>
+                    <TableHead>حساب الكوبون</TableHead>
+                    <TableHead>الإجراءات</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -438,19 +438,19 @@ export function ProductForm() {
               <form onSubmit={handleTeacherSubmit} className="space-y-6">
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="teacherName">Teacher Name</Label>
+                    <Label htmlFor="teacherName">اسم المدرس</Label>
                     <Input
                       id="teacherName"
                       value={teacherForm.name}
                       onChange={(e) =>
                         setTeacherForm({ ...teacherForm, name: e.target.value })
                       }
-                      placeholder="Enter teacher name"
+                      placeholder="أدخل اسم المدرس"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="teacherCommissionExpenseAccountId">
-                      Commission Account ID
+                      معرف حساب العمولة
                     </Label>
                     <Input
                       id="teacherCommissionExpenseAccountId"
@@ -462,11 +462,11 @@ export function ProductForm() {
                           teacherCommissionExpenseAccountId: Number(e.target.value),
                         })
                       }
-                      placeholder="Enter Commission Account ID"
+                      placeholder="أدخل معرف حساب العمولة"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="teacherPercentage">Percentage</Label>
+                    <Label htmlFor="teacherPercentage">النسبة</Label>
                     <Input
                       id="teacherPercentage"
                       type="number"
@@ -478,12 +478,12 @@ export function ProductForm() {
                           teacherPercentage: Number(e.target.value),
                         })
                       }
-                      placeholder="Enter Percentage"
+                      placeholder="أدخل النسبة"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="teacherPercentageLiabilityAccountId">
-                      Percentage Liability Account ID
+                      معرف حساب مسؤولية النسبة
                     </Label>
                     <Input
                       id="teacherPercentageLiabilityAccountId"
@@ -495,12 +495,12 @@ export function ProductForm() {
                           teacherPercentageLiabilityAccountId: Number(e.target.value),
                         })
                       }
-                      placeholder="Enter Percentage Liability Account ID"
+                      placeholder="أدخل معرف حساب مسؤولية النسبة"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="expenseAccountId">
-                      Expense Account ID
+                      معرف حساب المصروفات
                     </Label>
                     <Input
                       id="expenseAccountId"
@@ -512,12 +512,12 @@ export function ProductForm() {
                           expenseAccountId: Number(e.target.value),
                         })
                       }
-                      placeholder="Enter Expense Account ID"
+                      placeholder="أدخل معرف حساب المصروفات"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="teacherCouponAccountId">
-                      Coupon Account ID
+                      معرف حساب الكوبون
                     </Label>
                     <Input
                       id="teacherCouponAccountId"
@@ -529,12 +529,12 @@ export function ProductForm() {
                           couponAccountId: Number(e.target.value),
                         })
                       }
-                      placeholder="Enter Coupon Account ID"
+                      placeholder="أدخل معرف حساب الكوبون"
                     />
                   </div>
                 </div>
                 <Button type="submit" className="w-full">
-                  {editingTeacher ? 'Update Teacher' : 'Add Teacher'}
+                  {editingTeacher ? 'تحديث المدرس' : 'إضافة مدرس'}
                   {editingTeacher ? (
                     <Pencil className="ml-2 h-4 w-4" />
                   ) : (
@@ -546,13 +546,13 @@ export function ProductForm() {
               <Table className="mt-8">
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Commission Account</TableHead>
-                    <TableHead>Percentage</TableHead>
-                    <TableHead>Liability Account</TableHead>
-                    <TableHead>Expense Account</TableHead>
-                    <TableHead>Coupon Account</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead>الاسم</TableHead>
+                    <TableHead>حساب العمولة</TableHead>
+                    <TableHead>النسبة</TableHead>
+                    <TableHead>حساب المسؤولية</TableHead>
+                    <TableHead>حساب المصروفات</TableHead>
+                    <TableHead>حساب الكوبون</TableHead>
+                    <TableHead>الإجراءات</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
