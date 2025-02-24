@@ -14,26 +14,22 @@ import { Pencil, Trash2, Plus, ChevronDown, ChevronUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-
+ 
 interface Teacher {
   id: string;
   name: string;
   teacherPercentageLiabilityAccountId: number;
   teacherCommissionExpenseAccountId: number;
   teacherPercentage: number;
-  expenseAccountId: number;
-  couponAccountId: number;
 }
 
 interface Product {
   id?: number | null;
   productName: string;
   teacherCommissionExpenseAccountId: number | null;
-  teacherPercentageExpenseAccountId: number | null;
   teacherPercentage: number | null;
   teacherPercentageLiabilityAccountId: number | null;
   productRevenueAccountId: number | null;
-  couponAccountId: number | null;
 }
 
 const API_HEADERS = {
@@ -53,11 +49,9 @@ export function ProductForm() {
   const [productForm, setProductForm] = useState<Product>({
     productName: '',
     teacherCommissionExpenseAccountId: null,
-    teacherPercentageExpenseAccountId: null,
     teacherPercentage: null,
     teacherPercentageLiabilityAccountId: null,
     productRevenueAccountId: null,
-    couponAccountId: null
   });
 
   const [teacherForm, setTeacherForm] = useState<Omit<Teacher, 'id'>>({
@@ -65,8 +59,6 @@ export function ProductForm() {
     teacherPercentageLiabilityAccountId: 0,
     teacherCommissionExpenseAccountId: 0,
     teacherPercentage: 0,
-    expenseAccountId: 0,
-    couponAccountId: 0
   });
 
   useEffect(() => {
@@ -81,10 +73,8 @@ export function ProductForm() {
         setProductForm(prev => ({
           ...prev,
           teacherCommissionExpenseAccountId: selectedTeacher.teacherCommissionExpenseAccountId,
-          teacherPercentageExpenseAccountId: selectedTeacher.expenseAccountId,
           teacherPercentage: customTeacherPercentage ?? selectedTeacher.teacherPercentage,
           teacherPercentageLiabilityAccountId: selectedTeacher.teacherPercentageLiabilityAccountId,
-          couponAccountId: selectedTeacher.couponAccountId
         }));
       }
     }
@@ -97,9 +87,7 @@ export function ProductForm() {
       // Find and set the teacher based on the product's fields for radio selection
       const matchingTeacher = teachers.find(t =>
         t.teacherCommissionExpenseAccountId === editingProduct.teacherCommissionExpenseAccountId &&
-        t.expenseAccountId === editingProduct.teacherPercentageExpenseAccountId &&
-        t.teacherPercentageLiabilityAccountId === editingProduct.teacherPercentageLiabilityAccountId &&
-        t.couponAccountId === editingProduct.couponAccountId
+        t.teacherPercentageLiabilityAccountId === editingProduct.teacherPercentageLiabilityAccountId 
       );
       if (matchingTeacher) {
         setSelectedTeacherId(matchingTeacher.id);
@@ -114,11 +102,9 @@ export function ProductForm() {
       setProductForm({
         productName: '',
         teacherCommissionExpenseAccountId: null,
-        teacherPercentageExpenseAccountId: null,
         teacherPercentage: null,
         teacherPercentageLiabilityAccountId: null,
         productRevenueAccountId: null,
-        couponAccountId: null
       });
       setSelectedTeacherId('');
       setCustomTeacherPercentage(null);
@@ -133,8 +119,6 @@ export function ProductForm() {
         teacherPercentageLiabilityAccountId: editingTeacher.teacherPercentageLiabilityAccountId,
         teacherCommissionExpenseAccountId: editingTeacher.teacherCommissionExpenseAccountId,
         teacherPercentage: editingTeacher.teacherPercentage,
-        expenseAccountId: editingTeacher.expenseAccountId,
-        couponAccountId: editingTeacher.couponAccountId
       });
     } else {
       setTeacherForm({
@@ -142,8 +126,6 @@ export function ProductForm() {
         teacherPercentageLiabilityAccountId: 0,
         teacherCommissionExpenseAccountId: 0,
         teacherPercentage: 0,
-        expenseAccountId: 0,
-        couponAccountId: 0
       });
     }
   }, [editingTeacher]);
@@ -193,11 +175,9 @@ export function ProductForm() {
         setProductForm({
           productName: '',
           teacherCommissionExpenseAccountId: null,
-          teacherPercentageExpenseAccountId: null,
           teacherPercentage: null,
           teacherPercentageLiabilityAccountId: null,
           productRevenueAccountId: null,
-          couponAccountId: null
         });
         setSelectedTeacherId('');
         setCustomTeacherPercentage(null);
@@ -230,8 +210,6 @@ export function ProductForm() {
           teacherPercentageLiabilityAccountId: 0,
           teacherCommissionExpenseAccountId: 0,
           teacherPercentage: 0,
-          expenseAccountId: 0,
-          couponAccountId: 0
         });
         setEditingTeacher(null);
       }
@@ -391,10 +369,8 @@ export function ProductForm() {
                     <TableHead>اسم المنتج</TableHead>
                     <TableHead>حساب الإيرادات</TableHead>
                     <TableHead>حساب العمولة</TableHead>
-                    <TableHead>حساب النسبة</TableHead>
                     <TableHead>نسبة المدرس</TableHead>
                     <TableHead>حساب المسؤولية</TableHead>
-                    <TableHead>حساب الكوبون</TableHead>
                     <TableHead>الإجراءات</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -404,10 +380,8 @@ export function ProductForm() {
                       <TableCell>{product.productName}</TableCell>
                       <TableCell>{product.productRevenueAccountId}</TableCell>
                       <TableCell>{product.teacherCommissionExpenseAccountId}</TableCell>
-                      <TableCell>{product.teacherPercentageExpenseAccountId}</TableCell>
                       <TableCell>{product.teacherPercentage}%</TableCell>
                       <TableCell>{product.teacherPercentageLiabilityAccountId}</TableCell>
-                      <TableCell>{product.couponAccountId}</TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
                           <Button
@@ -498,40 +472,6 @@ export function ProductForm() {
                       placeholder="أدخل معرف حساب مسؤولية النسبة"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="expenseAccountId">
-                      معرف حساب المصروفات
-                    </Label>
-                    <Input
-                      id="expenseAccountId"
-                      type="number"
-                      value={teacherForm.expenseAccountId || ''}
-                      onChange={(e) =>
-                        setTeacherForm({
-                          ...teacherForm,
-                          expenseAccountId: Number(e.target.value),
-                        })
-                      }
-                      placeholder="أدخل معرف حساب المصروفات"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="teacherCouponAccountId">
-                      معرف حساب الكوبون
-                    </Label>
-                    <Input
-                      id="teacherCouponAccountId"
-                      type="number"
-                      value={teacherForm.couponAccountId || ''}
-                      onChange={(e) =>
-                        setTeacherForm({
-                          ...teacherForm,
-                          couponAccountId: Number(e.target.value),
-                        })
-                      }
-                      placeholder="أدخل معرف حساب الكوبون"
-                    />
-                  </div>
                 </div>
                 <Button type="submit" className="w-full">
                   {editingTeacher ? 'تحديث المدرس' : 'إضافة مدرس'}
@@ -550,8 +490,6 @@ export function ProductForm() {
                     <TableHead>حساب العمولة</TableHead>
                     <TableHead>النسبة</TableHead>
                     <TableHead>حساب المسؤولية</TableHead>
-                    <TableHead>حساب المصروفات</TableHead>
-                    <TableHead>حساب الكوبون</TableHead>
                     <TableHead>الإجراءات</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -562,8 +500,6 @@ export function ProductForm() {
                       <TableCell>{teacher.teacherCommissionExpenseAccountId}</TableCell>
                       <TableCell>{teacher.teacherPercentage}%</TableCell>
                       <TableCell>{teacher.teacherPercentageLiabilityAccountId}</TableCell>
-                      <TableCell>{teacher.expenseAccountId}</TableCell>
-                      <TableCell>{teacher.couponAccountId}</TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
                           <Button
