@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Pencil, Trash2, Plus, ChevronDown, ChevronUp } from 'lucide-react';
+import { Pencil, Trash2, Plus, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -45,6 +45,14 @@ export function ProductForm() {
   const [selectedTeacherId, setSelectedTeacherId] = useState<string>('');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [customTeacherPercentage, setCustomTeacherPercentage] = useState<number | null>(null);
+
+  // Loading states
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  const [isLoadingTeachers, setIsLoadingTeachers] = useState(false);
+  const [isSavingProduct, setIsSavingProduct] = useState(false);
+  const [isSavingTeacher, setIsSavingTeacher] = useState(false);
+  const [isDeletingProduct, setIsDeletingProduct] = useState<number | null>(null);
+  const [isDeletingTeacher, setIsDeletingTeacher] = useState<string | null>(null);
 
   const [productForm, setProductForm] = useState<Product>({
     productName: '',
@@ -131,6 +139,7 @@ export function ProductForm() {
   }, [editingTeacher]);
 
   const fetchProducts = async () => {
+    setIsLoadingProducts(true);
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/dashboard/products`, {
         headers: API_HEADERS
@@ -141,10 +150,13 @@ export function ProductForm() {
       }
     } catch (error) {
       console.error('Error fetching products:', error);
+    } finally {
+      setIsLoadingProducts(false);
     }
   };
 
   const fetchTeachers = async () => {
+    setIsLoadingTeachers(true);
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/dashboard/teachers`, {
         headers: API_HEADERS
@@ -153,11 +165,14 @@ export function ProductForm() {
       setTeachers(data);
     } catch (error) {
       console.error('Error fetching teachers:', error);
+    } finally {
+      setIsLoadingTeachers(false);
     }
   };
 
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSavingProduct(true);
     try {
       const url = editingProduct
         ? `${import.meta.env.VITE_BACKEND_URL}/dashboard/products/${editingProduct.id}`
@@ -186,11 +201,14 @@ export function ProductForm() {
       }
     } catch (error) {
       console.error('Error saving product:', error);
+    } finally {
+      setIsSavingProduct(false);
     }
   };
 
   const handleTeacherSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSavingTeacher(true);
     try {
       const url = editingTeacher
         ? `${import.meta.env.VITE_BACKEND_URL}/dashboard/teachers/${editingTeacher.id}`
@@ -215,10 +233,13 @@ export function ProductForm() {
       }
     } catch (error) {
       console.error('Error saving teacher:', error);
+    } finally {
+      setIsSavingTeacher(false);
     }
   };
 
   const handleDeleteProduct = async (id: number) => {
+    setIsDeletingProduct(id);
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/dashboard/products/${id}`, {
         method: 'DELETE',
@@ -230,10 +251,13 @@ export function ProductForm() {
       }
     } catch (error) {
       console.error('Error deleting product:', error);
+    } finally {
+      setIsDeletingProduct(null);
     }
   };
 
   const handleDeleteTeacher = async (id: string) => {
+    setIsDeletingTeacher(id);
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/dashboard/teachers/${id}`, {
         method: 'DELETE',
@@ -245,8 +269,39 @@ export function ProductForm() {
       }
     } catch (error) {
       console.error('Error deleting teacher:', error);
+    } finally {
+      setIsDeletingTeacher(null);
     }
   };
+
+  // Loading skeleton for products table
+  const ProductsTableSkeleton = () => (
+    <div className="mt-8 space-y-4">
+      <div className="h-10 w-full bg-gray-200 animate-pulse rounded"></div>
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="h-16 w-full bg-gray-100 animate-pulse rounded"></div>
+      ))}
+    </div>
+  );
+
+  // Loading skeleton for teachers table
+  const TeachersTableSkeleton = () => (
+    <div className="mt-8 space-y-4">
+      <div className="h-10 w-full bg-gray-200 animate-pulse rounded"></div>
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="h-16 w-full bg-gray-100 animate-pulse rounded"></div>
+      ))}
+    </div>
+  );
+
+  // Loading skeleton for radio options
+  const RadioOptionsSkeleton = () => (
+    <div className="grid grid-cols-2 gap-4">
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="h-16 w-full bg-gray-100 animate-pulse rounded-lg"></div>
+      ))}
+    </div>
+  );
 
   return (
     <div className="flex-1 p-8 overflow-auto" dir="rtl" lang="ar">
@@ -273,6 +328,7 @@ export function ProductForm() {
                         setProductForm({ ...productForm, productName: e.target.value })
                       }
                       placeholder="أدخل اسم المنتج"
+                      disabled={isSavingProduct}
                     />
                   </div>
                   <div className="space-y-2">
@@ -290,28 +346,34 @@ export function ProductForm() {
                         })
                       }
                       placeholder="أدخل معرف الحساب"
+                      disabled={isSavingProduct}
                     />
                   </div>
                   <div className="col-span-2 space-y-4">
                     <Label>اختر المدرس</Label>
-                    <RadioGroup
-                      value={selectedTeacherId}
-                      onValueChange={setSelectedTeacherId}
-                      className="grid grid-cols-2 gap-4"
-                    >
-                      {teachers.map((teacher) => (
-                        <div key={teacher.id} className="flex items-center space-x-2 border p-4 rounded-lg">
-                          <RadioGroupItem value={teacher.id} id={teacher.id} />
-                          <Label htmlFor={teacher.id} className="flex-1">
-                            <div className="font-medium">{teacher.name}</div>
-                            <div className="text-sm text-gray-500">
-                              العمولة: {teacher.teacherCommissionExpenseAccountId} |
-                              النسبة: {teacher.teacherPercentage}%
-                            </div>
-                          </Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
+                    {isLoadingTeachers ? (
+                      <RadioOptionsSkeleton />
+                    ) : (
+                      <RadioGroup
+                        value={selectedTeacherId}
+                        onValueChange={setSelectedTeacherId}
+                        className="grid grid-cols-2 gap-4"
+                        disabled={isSavingProduct}
+                      >
+                        {teachers.map((teacher) => (
+                          <div key={teacher.id} className="flex items-center space-x-2 border p-4 rounded-lg">
+                            <RadioGroupItem value={teacher.id} id={teacher.id} disabled={isSavingProduct} />
+                            <Label htmlFor={teacher.id} className="flex-1">
+                              <div className="font-medium">{teacher.name}</div>
+                              <div className="text-sm text-gray-500">
+                                العمولة: {teacher.teacherCommissionExpenseAccountId} |
+                                النسبة: {teacher.teacherPercentage}%
+                              </div>
+                            </Label>
+                          </div>
+                        ))}
+                      </RadioGroup>
+                    )}
                   </div>
                   
                   {/* Advanced Settings Button */}
@@ -321,6 +383,7 @@ export function ProductForm() {
                       variant="ghost"
                       onClick={() => setShowAdvanced(!showAdvanced)}
                       className="w-full flex items-center justify-center text-gray-600 hover:text-gray-900"
+                      disabled={isSavingProduct}
                     >
                       إعدادات متقدمة
                       {showAdvanced ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
@@ -348,64 +411,92 @@ export function ProductForm() {
                             }));
                           }}
                           placeholder="أدخل النسبة المخصصة"
+                          disabled={isSavingProduct}
                         />
                       </div>
                     </div>
                   )}
                 </div>
-                <Button type="submit" className="w-full">
-                  {editingProduct ? 'تحديث المنتج' : 'إضافة منتج'}
-                  {editingProduct ? (
-                    <Pencil className="ml-2 h-4 w-4" />
+                <Button type="submit" className="w-full" disabled={isSavingProduct}>
+                  {isSavingProduct ? (
+                    <>
+                      <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                      جاري الحفظ...
+                    </>
                   ) : (
-                    <Plus className="ml-2 h-4 w-4" />
+                    <>
+                      {editingProduct ? 'تحديث المنتج' : 'إضافة منتج'}
+                      {editingProduct ? (
+                        <Pencil className="ml-2 h-4 w-4" />
+                      ) : (
+                        <Plus className="ml-2 h-4 w-4" />
+                      )}
+                    </>
                   )}
                 </Button>
               </form>
 
-              <Table className="mt-8">
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>اسم المنتج</TableHead>
-                    <TableHead>حساب الإيرادات</TableHead>
-                    <TableHead>حساب العمولة</TableHead>
-                    <TableHead>نسبة المدرس</TableHead>
-                    <TableHead>حساب المسؤولية</TableHead>
-                    <TableHead>الإجراءات</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {products.map((product) => (
-                    <TableRow key={product.id}>
-                      <TableCell>{product.productName}</TableCell>
-                      <TableCell>{product.productRevenueAccountId}</TableCell>
-                      <TableCell>{product.teacherCommissionExpenseAccountId}</TableCell>
-                      <TableCell>{product.teacherPercentage}%</TableCell>
-                      <TableCell>{product.teacherPercentageLiabilityAccountId}</TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setEditingProduct(product);
-                            }}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteProduct(product.id!)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+              {isLoadingProducts ? (
+                <ProductsTableSkeleton />
+              ) : (
+                <Table className="mt-8">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>اسم المنتج</TableHead>
+                      <TableHead>حساب الإيرادات</TableHead>
+                      <TableHead>حساب العمولة</TableHead>
+                      <TableHead>نسبة المدرس</TableHead>
+                      <TableHead>حساب المسؤولية</TableHead>
+                      <TableHead>الإجراءات</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {products.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center py-6 text-gray-500">
+                          لا توجد منتجات. أضف منتجًا جديدًا باستخدام النموذج أعلاه.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      products.map((product) => (
+                        <TableRow key={product.id}>
+                          <TableCell>{product.productName}</TableCell>
+                          <TableCell>{product.productRevenueAccountId}</TableCell>
+                          <TableCell>{product.teacherCommissionExpenseAccountId}</TableCell>
+                          <TableCell>{product.teacherPercentage}%</TableCell>
+                          <TableCell>{product.teacherPercentageLiabilityAccountId}</TableCell>
+                          <TableCell>
+                            <div className="flex space-x-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setEditingProduct(product);
+                                }}
+                                disabled={isDeletingProduct === product.id || isSavingProduct}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteProduct(product.id!)}
+                                disabled={isDeletingProduct === product.id || isSavingProduct}
+                              >
+                                {isDeletingProduct === product.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              )}
             </TabsContent>
 
             <TabsContent value="teachers">
@@ -420,6 +511,7 @@ export function ProductForm() {
                         setTeacherForm({ ...teacherForm, name: e.target.value })
                       }
                       placeholder="أدخل اسم المدرس"
+                      disabled={isSavingTeacher}
                     />
                   </div>
                   <div className="space-y-2">
@@ -437,6 +529,7 @@ export function ProductForm() {
                         })
                       }
                       placeholder="أدخل معرف حساب العمولة"
+                      disabled={isSavingTeacher}
                     />
                   </div>
                   <div className="space-y-2">
@@ -453,6 +546,7 @@ export function ProductForm() {
                         })
                       }
                       placeholder="أدخل النسبة"
+                      disabled={isSavingTeacher}
                     />
                   </div>
                   <div className="space-y-2">
@@ -470,58 +564,86 @@ export function ProductForm() {
                         })
                       }
                       placeholder="أدخل معرف حساب مسؤولية النسبة"
+                      disabled={isSavingTeacher}
                     />
                   </div>
                 </div>
-                <Button type="submit" className="w-full">
-                  {editingTeacher ? 'تحديث المدرس' : 'إضافة مدرس'}
-                  {editingTeacher ? (
-                    <Pencil className="ml-2 h-4 w-4" />
+                <Button type="submit" className="w-full" disabled={isSavingTeacher}>
+                  {isSavingTeacher ? (
+                    <>
+                      <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                      جاري الحفظ...
+                    </>
                   ) : (
-                    <Plus className="ml-2 h-4 w-4" />
+                    <>
+                      {editingTeacher ? 'تحديث المدرس' : 'إضافة مدرس'}
+                      {editingTeacher ? (
+                        <Pencil className="ml-2 h-4 w-4" />
+                      ) : (
+                        <Plus className="ml-2 h-4 w-4" />
+                      )}
+                    </>
                   )}
                 </Button>
               </form>
 
-              <Table className="mt-8">
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>الاسم</TableHead>
-                    <TableHead>حساب العمولة</TableHead>
-                    <TableHead>النسبة</TableHead>
-                    <TableHead>حساب المسؤولية</TableHead>
-                    <TableHead>الإجراءات</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {teachers.map((teacher) => (
-                    <TableRow key={teacher.id}>
-                      <TableCell>{teacher.name}</TableCell>
-                      <TableCell>{teacher.teacherCommissionExpenseAccountId}</TableCell>
-                      <TableCell>{teacher.teacherPercentage}%</TableCell>
-                      <TableCell>{teacher.teacherPercentageLiabilityAccountId}</TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setEditingTeacher(teacher)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteTeacher(teacher.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+              {isLoadingTeachers ? (
+                <TeachersTableSkeleton />
+              ) : (
+                <Table className="mt-8">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>الاسم</TableHead>
+                      <TableHead>حساب العمولة</TableHead>
+                      <TableHead>النسبة</TableHead>
+                      <TableHead>حساب المسؤولية</TableHead>
+                      <TableHead>الإجراءات</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {teachers.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-6 text-gray-500">
+                          لا يوجد مدرسون. أضف مدرسًا جديدًا باستخدام النموذج أعلاه.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      teachers.map((teacher) => (
+                        <TableRow key={teacher.id}>
+                          <TableCell>{teacher.name}</TableCell>
+                          <TableCell>{teacher.teacherCommissionExpenseAccountId}</TableCell>
+                          <TableCell>{teacher.teacherPercentage}%</TableCell>
+                          <TableCell>{teacher.teacherPercentageLiabilityAccountId}</TableCell>
+                          <TableCell>
+                            <div className="flex space-x-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setEditingTeacher(teacher)}
+                                disabled={isDeletingTeacher === teacher.id || isSavingTeacher}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteTeacher(teacher.id)}
+                                disabled={isDeletingTeacher === teacher.id || isSavingTeacher}
+                              >
+                                {isDeletingTeacher === teacher.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              )}
             </TabsContent>
           </Tabs>
         </CardContent>

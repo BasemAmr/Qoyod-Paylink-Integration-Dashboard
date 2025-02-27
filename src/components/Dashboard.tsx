@@ -1,5 +1,5 @@
 import  { useState, useEffect } from 'react';
-import { format, subDays } from 'date-fns';
+import { addHours, format, subDays } from 'date-fns';
 import { arSA } from 'date-fns/locale';
 import { DateRange } from 'react-day-picker';
 import {
@@ -12,11 +12,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Search, ChevronDown, ChevronUp, XCircle, CalendarIcon } from 'lucide-react';
+import { AlertCircle, Search, ChevronDown, ChevronUp, XCircle, CalendarIcon, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LogEntry } from './LogEntry';
 import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'; // Import Popover components
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface Log {
   id: string;
@@ -41,10 +41,13 @@ export function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showErrorSummary, setShowErrorSummary] = useState(true);
-  const [filterDateRange, setFilterDateRange] = useState<DateRange | undefined>({ // Updated to DateRange type
+  const [filterDateRange, setFilterDateRange] = useState<DateRange | undefined>({
     from: subDays(new Date(), 3),
-    to: new Date(),
+    to: addHours(new Date(), 12),
   });
+  // New state for tracking transaction IDs being dismissed
+  const [dismissingTransactions, setDismissingTransactions] = useState<string[]>([]);
+  
 
   useEffect(() => {
     fetchLogs();
@@ -53,7 +56,7 @@ export function Dashboard() {
   const fetchLogs = async () => {
     setLoading(true);
     try {
-      const formattedStartDate = filterDateRange?.from ? format(filterDateRange.from, 'yyyy-MM-dd') : ''; // Optional chaining and type safety
+      const formattedStartDate = filterDateRange?.from ? format(filterDateRange.from, 'yyyy-MM-dd') : '';
       const formattedEndDate = filterDateRange?.to ? format(filterDateRange.to, 'yyyy-MM-dd') : '';
 
       const response = await fetch(
@@ -75,6 +78,9 @@ export function Dashboard() {
   };
 
   const handleDismissError = async (transactionId: string) => {
+    // Add transaction ID to dismissing list
+    setDismissingTransactions(prev => [...prev, transactionId]);
+    
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/dashboard/logs/dismiss/${transactionId}`, {
         method: 'PUT',
@@ -89,6 +95,9 @@ export function Dashboard() {
       setShowErrorSummary(true);
     } catch (error: any) {
       console.error('خطأ أثناء تجاهل الخطأ:', error.message);
+    } finally {
+      // Remove transaction ID from dismissing list when done
+      setDismissingTransactions(prev => prev.filter(id => id !== transactionId));
     }
   };
 
@@ -140,6 +149,10 @@ export function Dashboard() {
                       (log.status.toLowerCase() === 'failed' || log.status.toLowerCase() === 'syncfailed') && log.errorCode !== null
                     );
                     if (failedLogs.length === 0) return null;
+                    
+                    // Check if this transaction is being dismissed
+                    const isDismissing = dismissingTransactions.includes(transactionId);
+                    
                     return (
                       <Alert variant="destructive" key={transactionId}>
                         <AlertTitle>{`المعاملة: ${transactionId}`}</AlertTitle>
@@ -156,8 +169,17 @@ export function Dashboard() {
                             size="sm"
                             className="mt-2"
                             onClick={() => handleDismissError(transactionId)}
+                            disabled={isDismissing}
                           >
-                            <XCircle className="h-4 w-4 mr-2" /> تجاهل الخطأ للمعاملة
+                            {isDismissing ? (
+                              <>
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> جاري تجاهل الخطأ...
+                              </>
+                            ) : (
+                              <>
+                                <XCircle className="h-4 w-4 mr-2" /> تجاهل الخطأ للمعاملة
+                              </>
+                            )}
                           </Button>
                         </AlertDescription>
                       </Alert>
@@ -172,34 +194,35 @@ export function Dashboard() {
         {/* Search and Logs Card */}
         <Card>
           <CardContent className="p-6">
-            <div className="flex justify-between items-center mb-4"> {/* Flex container for search and date filter */}
-              <div className="relative w-1/2"> {/* Take half width for search */}
+            <div className="flex justify-between items-center mb-4">
+              <div className="relative w-1/2">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="ابحث برقم المعاملة..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-9"
+                  disabled={loading}
                 />
               </div>
 
-              <Popover> {/* Popover for Date Range Picker */}
+              <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="h-9 px-3 ml-2"> {/* Added ml-2 for spacing */}
+                  <Button variant="outline" className="h-9 px-3 ml-2" disabled={loading}>
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {filterDateRange?.from && filterDateRange.to ? (
                       <>
-                        {format(filterDateRange.from, 'yyyy-MM-dd', { locale: arSA })} - {format(filterDateRange.to, 'yyyy-MM-dd', { locale: arSA })} {/* Arabic Date format */}
+                        {format(filterDateRange.from, 'yyyy-MM-dd', { locale: arSA })} - {format(filterDateRange.to, 'yyyy-MM-dd', { locale: arSA })}
                       </>
                     ) : (
-                      <span>{`اختر التاريخ`}</span> // Arabic: Choose Date
+                      <span>{`اختر التاريخ`}</span>
                     )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="end">
                   <Calendar
                     mode="range"
-                    locale={arSA} // Set Arabic locale for date picker
+                    locale={arSA}
                     defaultMonth={filterDateRange?.from || undefined}
                     selected={filterDateRange}
                     onSelect={setFilterDateRange}
@@ -209,10 +232,28 @@ export function Dashboard() {
               </Popover>
             </div>
 
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold">{`سجلات المعاملات`}</h2>
+              {loading && (
+                <div className="flex items-center text-gray-500">
+                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                  <span>{`جارٍ تحميل السجلات...`}</span>
+                </div>
+              )}
+            </div>
 
-            <h2 className="text-2xl font-bold mb-6">{`سجلات المعاملات`}</h2>
             {loading ? (
-              <p>{`جارٍ تحميل السجلات...`}</p>
+              <div className="flex flex-col items-center justify-center h-64 space-y-4">
+                <Loader2 className="h-12 w-12 text-primary animate-spin" />
+                <p className="text-lg text-gray-500">{`جارٍ تحميل السجلات...`}</p>
+              </div>
+            ) : Object.keys(groupedLogs).length === 0 ? (
+              <div className="text-center py-12 border border-dashed rounded-lg">
+                <p className="text-gray-500">{`لا توجد سجلات للعرض.`}</p>
+                {searchQuery && (
+                  <p className="text-gray-400 mt-2">{`حاول تغيير معايير البحث.`}</p>
+                )}
+              </div>
             ) : (
               <Accordion type="single" collapsible className="space-y-4">
                 {Object.entries(groupedLogs).map(([transactionId, logs]) => (
