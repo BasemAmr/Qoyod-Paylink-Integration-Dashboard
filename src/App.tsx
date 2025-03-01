@@ -9,11 +9,7 @@ import { cn } from './lib/utils';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentView, setCurrentView] = useState<'home' | 'products'>('home');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Add sidebar state
-
-  const toggleSidebar = () => {
-      setIsSidebarOpen(!isSidebarOpen);
-  };
+  const [isSidebarOpen] = useState(false); // Add sidebar state
 
   if (!isAuthenticated) {
     return <Login onLogin={() => setIsAuthenticated(true)} />;
