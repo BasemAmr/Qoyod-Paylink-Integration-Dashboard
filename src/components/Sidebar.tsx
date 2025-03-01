@@ -1,4 +1,6 @@
-import { Home, Package, LogOut } from 'lucide-react';
+// Sidebar.txt
+import { useState } from 'react';
+import { Home, Package, LogOut, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
@@ -9,33 +11,73 @@ interface SidebarProps {
 }
 
 export function Sidebar({ onLogout, onNavigate, currentView }: SidebarProps) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
-    <div className="w-64 bg-white border-r h-full" dir="rtl" lang="ar"> {/* RTL and lang attributes */}
-      <div className="p-6">
-        <h2 className="text-lg font-semibold text-gray-900 text-right">{`نظام تكامل قيود-المدفوعات`}</h2> {/* Arabic title */}
+    <div
+      className={cn(
+        'w-64 bg-white border-r h-full transition-all duration-300', // Keep fixed width on larger screens
+        isSidebarOpen ? 'w-64' : 'w-0', // Full width when open, 0 when closed
+        'sm:w-64' // Always full width on small and larger screens
+      )}
+      dir="rtl"
+      lang="ar"
+    >
+      {/* Toggle Button (Visible on Small Screens) */}
+      <Button
+        variant="ghost"
+        className="absolute top-2 right-2 sm:hidden" // Hide on small and larger screens
+        onClick={toggleSidebar}
+        size="icon"
+      >
+        <Menu className="h-6 w-6" />
+      </Button>
+
+      <div className={cn(
+        "p-6",
+        isSidebarOpen ? 'block' : 'hidden',
+        'sm:block' // Always show on small screens and above
+        )}>
+        <h2 className="text-lg font-semibold text-gray-900 text-right">
+          {`نظام تكامل قيود-المدفوعات`}
+        </h2>
       </div>
-      <nav className="space-y-2 px-4">
+      <nav className={cn(
+        "space-y-2 px-4",
+        isSidebarOpen ? 'block' : 'hidden',
+        'sm:block' // Always show on small screens and above
+        )}>
         <SidebarItem
           icon={Home}
-          onClick={() => onNavigate('home')}
+          onClick={() => {
+            onNavigate('home');
+            setIsSidebarOpen(false); // Close sidebar on navigation (mobile)
+          }}
           active={currentView === 'home'}
         >
-          {`الرئيسية`} {/* Arabic: Home */}
+          {`الرئيسية`}
         </SidebarItem>
         <SidebarItem
           icon={Package}
-          onClick={() => onNavigate('products')}
+          onClick={() => {
+            onNavigate('products');
+            setIsSidebarOpen(false); // Close sidebar on navigation (mobile)
+          }}
           active={currentView === 'products'}
         >
-          {`حسابات المنتجات`} {/* Arabic: Product Accounts */}
+          {`حسابات المنتجات`}
         </SidebarItem>
         <Button
           variant="ghost"
-          className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50 flex-row-reverse" // Reversed flex direction for icon on left
+          className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50 flex-row-reverse"
           onClick={onLogout}
         >
-          <LogOut className="ml-2 h-4 w-4" /> {/* Moved icon to the left using ml-2 */}
-          {`تسجيل الخروج`} {/* Arabic: Logout */}
+          <LogOut className="ml-2 h-4 w-4" />
+          {`تسجيل الخروج`}
         </Button>
       </nav>
     </div>
@@ -49,18 +91,23 @@ interface SidebarItemProps {
   onClick: () => void;
 }
 
-function SidebarItem({ icon: Icon, children, active, onClick }: SidebarItemProps) {
+function SidebarItem({
+  icon: Icon,
+  children,
+  active,
+  onClick,
+}: SidebarItemProps) {
   return (
     <button
       onClick={onClick}
       className={cn(
-        'flex items-center w-full px-4 py-2 text-sm font-medium rounded-md flex-row-reverse', // Reversed flex direction for items
+        'flex items-center w-full px-4 py-2 text-sm font-medium rounded-md flex-row-reverse',
         active
           ? 'bg-gray-100 text-gray-900'
           : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
       )}
     >
-      <Icon className="ml-3 h-4 w-4" /> {/* Adjusted margin for icon on the left */}
+      <Icon className="ml-3 h-4 w-4" />
       {children}
     </button>
   );

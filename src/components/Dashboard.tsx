@@ -1,4 +1,5 @@
-import  { useState, useEffect } from 'react';
+// Dashboard.txt
+import { useState, useEffect } from 'react';
 import { addHours, format, subDays } from 'date-fns';
 import { arSA } from 'date-fns/locale';
 import { DateRange } from 'react-day-picker';
@@ -12,7 +13,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Search, ChevronDown, ChevronUp, XCircle, CalendarIcon, Loader2 } from 'lucide-react';
+import {
+  AlertCircle,
+  Search,
+  ChevronDown,
+  ChevronUp,
+  XCircle,
+  CalendarIcon,
+  Loader2,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LogEntry } from './LogEntry';
 import { Calendar } from '@/components/ui/calendar';
@@ -45,9 +54,9 @@ export function Dashboard() {
     from: subDays(new Date(), 3),
     to: addHours(new Date(), 12),
   });
-  // New state for tracking transaction IDs being dismissed
-  const [dismissingTransactions, setDismissingTransactions] = useState<string[]>([]);
-  
+  const [dismissingTransactions, setDismissingTransactions] = useState<
+    string[]
+  >([]);
 
   useEffect(() => {
     fetchLogs();
@@ -56,11 +65,17 @@ export function Dashboard() {
   const fetchLogs = async () => {
     setLoading(true);
     try {
-      const formattedStartDate = filterDateRange?.from ? format(filterDateRange.from, 'yyyy-MM-dd') : '';
-      const formattedEndDate = filterDateRange?.to ? format(filterDateRange.to, 'yyyy-MM-dd') : '';
+      const formattedStartDate = filterDateRange?.from
+        ? format(filterDateRange.from, 'yyyy-MM-dd')
+        : '';
+      const formattedEndDate = filterDateRange?.to
+        ? format(filterDateRange.to, 'yyyy-MM-dd')
+        : '';
 
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/dashboard/logs?startDate=${formattedStartDate}&endDate=${formattedEndDate}`,
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/dashboard/logs?startDate=${formattedStartDate}&endDate=${formattedEndDate}`,
         {
           headers: API_HEADERS,
         }
@@ -78,26 +93,33 @@ export function Dashboard() {
   };
 
   const handleDismissError = async (transactionId: string) => {
-    // Add transaction ID to dismissing list
-    setDismissingTransactions(prev => [...prev, transactionId]);
-    
+    setDismissingTransactions((prev) => [...prev, transactionId]);
+
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/dashboard/logs/dismiss/${transactionId}`, {
-        method: 'PUT',
-        headers: API_HEADERS
-      });
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/dashboard/logs/dismiss/${transactionId}`,
+        {
+          method: 'PUT',
+          headers: API_HEADERS,
+        }
+      );
       if (!response.ok) {
         throw new Error('فشل في تجاهل الخطأ للمعاملة');
       }
-      setLogs(prevLogs => prevLogs.map(log =>
-          log.transactionId === transactionId ? { ...log, errorCode: null, errorDetails: null } : log
-      ));
+      setLogs((prevLogs) =>
+        prevLogs.map((log) =>
+          log.transactionId === transactionId
+            ? { ...log, errorCode: null, errorDetails: null }
+            : log
+        )
+      );
       setShowErrorSummary(true);
     } catch (error: any) {
       console.error('خطأ أثناء تجاهل الخطأ:', error.message);
     } finally {
-      // Remove transaction ID from dismissing list when done
-      setDismissingTransactions(prev => prev.filter(id => id !== transactionId));
+      setDismissingTransactions((prev) => prev.filter((id) => id !== transactionId));
     }
   };
 
@@ -116,15 +138,21 @@ export function Dashboard() {
   }, {} as Record<string, Log[]>);
 
   const failedTransactions = Object.entries(groupedLogs).filter(([_, logs]) =>
-      logs.some(log => (log.status.toLowerCase() === 'failed' || log.status.toLowerCase() === 'syncfailed') && log.errorCode !== null)
+    logs.some(
+      (log) =>
+        (log.status.toLowerCase() === 'failed' ||
+          log.status.toLowerCase() === 'syncfailed') &&
+        log.errorCode !== null
+    )
   );
 
   return (
-    <div className="flex-1 p-8 overflow-auto" dir="rtl" lang="ar">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="flex-1 p-4 overflow-auto" dir="rtl" lang="ar">
+      {/* Responsive Container */}
+      <div className="max-w-7xl mx-auto space-y-8 px-4 py-6 sm:px-6 lg:px-8">
         {/* Error Summary Card */}
         {failedTransactions.length > 0 && (
-          <Card className="border-red-200 bg-red-50">
+          <Card className="border-red-200 bg-red-50 sm:col-span-2">
             <CardHeader className="pb-2">
               <div className="flex justify-between items-center">
                 <CardTitle className="text-red-700 flex items-center">
@@ -145,14 +173,17 @@ export function Dashboard() {
               <CardContent>
                 <div className="space-y-4">
                   {failedTransactions.map(([transactionId, logs]) => {
-                    const failedLogs = logs.filter(log =>
-                      (log.status.toLowerCase() === 'failed' || log.status.toLowerCase() === 'syncfailed') && log.errorCode !== null
+                    const failedLogs = logs.filter(
+                      (log) =>
+                        (log.status.toLowerCase() === 'failed' ||
+                          log.status.toLowerCase() === 'syncfailed') &&
+                        log.errorCode !== null
                     );
                     if (failedLogs.length === 0) return null;
-                    
-                    // Check if this transaction is being dismissed
-                    const isDismissing = dismissingTransactions.includes(transactionId);
-                    
+
+                    const isDismissing =
+                      dismissingTransactions.includes(transactionId);
+
                     return (
                       <Alert variant="destructive" key={transactionId}>
                         <AlertTitle>{`المعاملة: ${transactionId}`}</AlertTitle>
@@ -173,11 +204,13 @@ export function Dashboard() {
                           >
                             {isDismissing ? (
                               <>
-                                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> جاري تجاهل الخطأ...
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />{' '}
+                                جاري تجاهل الخطأ...
                               </>
                             ) : (
                               <>
-                                <XCircle className="h-4 w-4 mr-2" /> تجاهل الخطأ للمعاملة
+                                <XCircle className="h-4 w-4 mr-2" /> تجاهل الخطأ
+                                للمعاملة
                               </>
                             )}
                           </Button>
@@ -194,25 +227,36 @@ export function Dashboard() {
         {/* Search and Logs Card */}
         <Card>
           <CardContent className="p-6">
-            <div className="flex justify-between items-center mb-4">
-              <div className="relative w-1/2">
+            {/* Flex container for responsive layout */}
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-4 space-y-4 sm:space-y-0 sm:space-x-4">
+              <div className="relative w-full sm:w-1/2">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="ابحث برقم المعاملة..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
+                  className="pl-9 w-full"
                   disabled={loading}
                 />
               </div>
 
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="h-9 px-3 ml-2" disabled={loading}>
+                  <Button
+                    variant="outline"
+                    className="h-9 px-3 w-full sm:w-auto"
+                    disabled={loading}
+                  >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {filterDateRange?.from && filterDateRange.to ? (
                       <>
-                        {format(filterDateRange.from, 'yyyy-MM-dd', { locale: arSA })} - {format(filterDateRange.to, 'yyyy-MM-dd', { locale: arSA })}
+                        {format(filterDateRange.from, 'yyyy-MM-dd', {
+                          locale: arSA,
+                        })}{' '}
+                        -{' '}
+                        {format(filterDateRange.to, 'yyyy-MM-dd', {
+                          locale: arSA,
+                        })}
                       </>
                     ) : (
                       <span>{`اختر التاريخ`}</span>
@@ -255,7 +299,12 @@ export function Dashboard() {
                 )}
               </div>
             ) : (
-              <Accordion type="single" collapsible className="space-y-4">
+              // Responsive Accordion container
+              <Accordion
+                type="single"
+                collapsible
+                className="space-y-4 w-full"
+              >
                 {Object.entries(groupedLogs).map(([transactionId, logs]) => (
                   <AccordionItem
                     key={transactionId}
@@ -267,8 +316,11 @@ export function Dashboard() {
                         <span className="font-semibold">
                           {`المعاملة: ${transactionId}`}
                         </span>
+                        {/* date with consistent formatting */}
                         <span className="text-sm text-gray-500">
-                        {format(new Date(logs[0].timestamp), 'PP', { locale: arSA })}
+                          {format(new Date(logs[0].timestamp), 'PP', {
+                            locale: arSA,
+                          })}
                         </span>
                       </div>
                     </AccordionTrigger>

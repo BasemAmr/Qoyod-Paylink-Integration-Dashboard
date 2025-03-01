@@ -1,3 +1,4 @@
+// LogEntry.txt
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
@@ -45,15 +46,19 @@ export function LogEntry({ log }: LogEntryProps) {
             </span>
           </div>
           <span className="text-sm text-gray-500">
-            {new Date(log.timestamp).toLocaleString('ar-SA')} {/* Arabic locale for date */}
+            {new Date(log.timestamp).toLocaleString('ar-SA')}{' '}
           </span>
         </div>
-        <p className="text-gray-600 text-right" dir="rtl"> {/* Arabic text alignment */}
+        {/* Ensure text wraps correctly */}
+        <p className="text-gray-600 text-right break-words" dir="rtl">
           {log.message}
         </p>
         {log.qoyodInvoiceId && (
-          <p className="text-sm text-gray-500 text-right" dir="rtl"> {/* Arabic text alignment */}
-            {`معرف فاتورة قيود: ${log.qoyodInvoiceId}`} {/* Arabic: Qoyod Invoice ID: */}
+          <p
+            className="text-sm text-gray-500 text-right break-words"
+            dir="rtl"
+          >
+            {`معرف فاتورة قيود: ${log.qoyodInvoiceId}`}
           </p>
         )}
       </div>

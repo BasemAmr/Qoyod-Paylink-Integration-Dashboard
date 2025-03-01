@@ -1,3 +1,4 @@
+// ProductForm.txt
 import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -10,11 +11,23 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Pencil, Trash2, Plus, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
- 
+import {
+  Pencil,
+  Trash2,
+  Plus,
+  ChevronDown,
+  ChevronUp,
+  Loader2,
+} from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+
 interface Teacher {
   id: string;
   name: string;
@@ -34,7 +47,7 @@ interface Product {
 
 const API_HEADERS = {
   'Content-Type': 'application/json',
-  'ngrok-skip-browser-warning': '1'
+  'ngrok-skip-browser-warning': '1',
 };
 
 export function ProductForm() {
@@ -44,15 +57,20 @@ export function ProductForm() {
   const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
   const [selectedTeacherId, setSelectedTeacherId] = useState<string>('');
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [customTeacherPercentage, setCustomTeacherPercentage] = useState<number | null>(null);
+  const [customTeacherPercentage, setCustomTeacherPercentage] =
+    useState<number | null>(null);
 
   // Loading states
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   const [isLoadingTeachers, setIsLoadingTeachers] = useState(false);
   const [isSavingProduct, setIsSavingProduct] = useState(false);
   const [isSavingTeacher, setIsSavingTeacher] = useState(false);
-  const [isDeletingProduct, setIsDeletingProduct] = useState<number | null>(null);
-  const [isDeletingTeacher, setIsDeletingTeacher] = useState<string | null>(null);
+  const [isDeletingProduct, setIsDeletingProduct] = useState<number | null>(
+    null
+  );
+  const [isDeletingTeacher, setIsDeletingTeacher] = useState<string | null>(
+    null
+  );
 
   const [productForm, setProductForm] = useState<Product>({
     productName: '',
@@ -76,13 +94,16 @@ export function ProductForm() {
 
   useEffect(() => {
     if (selectedTeacherId) {
-      const selectedTeacher = teachers.find(t => t.id === selectedTeacherId);
+      const selectedTeacher = teachers.find((t) => t.id === selectedTeacherId);
       if (selectedTeacher) {
-        setProductForm(prev => ({
+        setProductForm((prev) => ({
           ...prev,
-          teacherCommissionExpenseAccountId: selectedTeacher.teacherCommissionExpenseAccountId,
-          teacherPercentage: customTeacherPercentage ?? selectedTeacher.teacherPercentage,
-          teacherPercentageLiabilityAccountId: selectedTeacher.teacherPercentageLiabilityAccountId,
+          teacherCommissionExpenseAccountId:
+            selectedTeacher.teacherCommissionExpenseAccountId,
+          teacherPercentage:
+            customTeacherPercentage ?? selectedTeacher.teacherPercentage,
+          teacherPercentageLiabilityAccountId:
+            selectedTeacher.teacherPercentageLiabilityAccountId,
         }));
       }
     }
@@ -93,14 +114,19 @@ export function ProductForm() {
       setProductForm(editingProduct);
       setCustomTeacherPercentage(editingProduct.teacherPercentage);
       // Find and set the teacher based on the product's fields for radio selection
-      const matchingTeacher = teachers.find(t =>
-        t.teacherCommissionExpenseAccountId === editingProduct.teacherCommissionExpenseAccountId &&
-        t.teacherPercentageLiabilityAccountId === editingProduct.teacherPercentageLiabilityAccountId 
+      const matchingTeacher = teachers.find(
+        (t) =>
+          t.teacherCommissionExpenseAccountId ===
+            editingProduct.teacherCommissionExpenseAccountId &&
+          t.teacherPercentageLiabilityAccountId ===
+            editingProduct.teacherPercentageLiabilityAccountId
       );
       if (matchingTeacher) {
         setSelectedTeacherId(matchingTeacher.id);
         // If the percentage differs from the teacher's default, show advanced section
-        if (editingProduct.teacherPercentage !== matchingTeacher.teacherPercentage) {
+        if (
+          editingProduct.teacherPercentage !== matchingTeacher.teacherPercentage
+        ) {
           setShowAdvanced(true);
         }
       } else {
@@ -124,8 +150,10 @@ export function ProductForm() {
     if (editingTeacher) {
       setTeacherForm({
         name: editingTeacher.name,
-        teacherPercentageLiabilityAccountId: editingTeacher.teacherPercentageLiabilityAccountId,
-        teacherCommissionExpenseAccountId: editingTeacher.teacherCommissionExpenseAccountId,
+        teacherPercentageLiabilityAccountId:
+          editingTeacher.teacherPercentageLiabilityAccountId,
+        teacherCommissionExpenseAccountId:
+          editingTeacher.teacherCommissionExpenseAccountId,
         teacherPercentage: editingTeacher.teacherPercentage,
       });
     } else {
@@ -141,9 +169,12 @@ export function ProductForm() {
   const fetchProducts = async () => {
     setIsLoadingProducts(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/dashboard/products`, {
-        headers: API_HEADERS
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/dashboard/products`,
+        {
+          headers: API_HEADERS,
+        }
+      );
       const data = await response.json();
       if (data.success) {
         setProducts(data.products);
@@ -158,9 +189,12 @@ export function ProductForm() {
   const fetchTeachers = async () => {
     setIsLoadingTeachers(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/dashboard/teachers`, {
-        headers: API_HEADERS
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/dashboard/teachers`,
+        {
+          headers: API_HEADERS,
+        }
+      );
       const data = await response.json();
       setTeachers(data);
     } catch (error) {
@@ -175,7 +209,9 @@ export function ProductForm() {
     setIsSavingProduct(true);
     try {
       const url = editingProduct
-        ? `${import.meta.env.VITE_BACKEND_URL}/dashboard/products/${editingProduct.id}`
+        ? `${import.meta.env.VITE_BACKEND_URL}/dashboard/products/${
+            editingProduct.id
+          }`
         : `${import.meta.env.VITE_BACKEND_URL}/dashboard/products`;
       const method = editingProduct ? 'PUT' : 'POST';
 
@@ -211,7 +247,9 @@ export function ProductForm() {
     setIsSavingTeacher(true);
     try {
       const url = editingTeacher
-        ? `${import.meta.env.VITE_BACKEND_URL}/dashboard/teachers/${editingTeacher.id}`
+        ? `${import.meta.env.VITE_BACKEND_URL}/dashboard/teachers/${
+            editingTeacher.id
+          }`
         : `${import.meta.env.VITE_BACKEND_URL}/dashboard/teachers`;
       const method = editingTeacher ? 'PUT' : 'POST';
 
@@ -241,10 +279,13 @@ export function ProductForm() {
   const handleDeleteProduct = async (id: number) => {
     setIsDeletingProduct(id);
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/dashboard/products/${id}`, {
-        method: 'DELETE',
-        headers: API_HEADERS
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/dashboard/products/${id}`,
+        {
+          method: 'DELETE',
+          headers: API_HEADERS,
+        }
+      );
 
       if (response.ok) {
         fetchProducts();
@@ -259,10 +300,13 @@ export function ProductForm() {
   const handleDeleteTeacher = async (id: string) => {
     setIsDeletingTeacher(id);
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/dashboard/teachers/${id}`, {
-        method: 'DELETE',
-        headers: API_HEADERS
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/dashboard/teachers/${id}`,
+        {
+          method: 'DELETE',
+          headers: API_HEADERS,
+        }
+      );
 
       if (response.ok) {
         fetchTeachers();
@@ -279,7 +323,10 @@ export function ProductForm() {
     <div className="mt-8 space-y-4">
       <div className="h-10 w-full bg-gray-200 animate-pulse rounded"></div>
       {[1, 2, 3].map((i) => (
-        <div key={i} className="h-16 w-full bg-gray-100 animate-pulse rounded"></div>
+        <div
+          key={i}
+          className="h-16 w-full bg-gray-100 animate-pulse rounded"
+        ></div>
       ))}
     </div>
   );
@@ -289,7 +336,10 @@ export function ProductForm() {
     <div className="mt-8 space-y-4">
       <div className="h-10 w-full bg-gray-200 animate-pulse rounded"></div>
       {[1, 2, 3].map((i) => (
-        <div key={i} className="h-16 w-full bg-gray-100 animate-pulse rounded"></div>
+        <div
+          key={i}
+          className="h-16 w-full bg-gray-100 animate-pulse rounded"
+        ></div>
       ))}
     </div>
   );
@@ -298,14 +348,17 @@ export function ProductForm() {
   const RadioOptionsSkeleton = () => (
     <div className="grid grid-cols-2 gap-4">
       {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="h-16 w-full bg-gray-100 animate-pulse rounded-lg"></div>
+        <div
+          key={i}
+          className="h-16 w-full bg-gray-100 animate-pulse rounded-lg"
+        ></div>
       ))}
     </div>
   );
 
   return (
-    <div className="flex-1 p-8 overflow-auto" dir="rtl" lang="ar">
-      <Card>
+    <div className="flex-1 p-4 overflow-auto" dir="rtl" lang="ar">
+      <Card className="mx-auto max-w-4xl">
         <CardHeader>
           <CardTitle>إدارة المنتجات والمدرسين</CardTitle>
         </CardHeader>
@@ -318,14 +371,18 @@ export function ProductForm() {
 
             <TabsContent value="products">
               <form onSubmit={handleProductSubmit} className="space-y-6">
-                <div className="grid grid-cols-2 gap-6">
+                {/* Responsive Grid for Form Inputs */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="productName">اسم المنتج</Label>
                     <Input
                       id="productName"
                       value={productForm.productName}
                       onChange={(e) =>
-                        setProductForm({ ...productForm, productName: e.target.value })
+                        setProductForm({
+                          ...productForm,
+                          productName: e.target.value,
+                        })
                       }
                       placeholder="أدخل اسم المنتج"
                       disabled={isSavingProduct}
@@ -342,18 +399,21 @@ export function ProductForm() {
                       onChange={(e) =>
                         setProductForm({
                           ...productForm,
-                          productRevenueAccountId: e.target.value ? Number(e.target.value) : null,
+                          productRevenueAccountId: e.target.value
+                            ? Number(e.target.value)
+                            : null,
                         })
                       }
                       placeholder="أدخل معرف الحساب"
                       disabled={isSavingProduct}
                     />
                   </div>
-                  <div className="col-span-2 space-y-4">
+                  <div className="col-span-1 sm:col-span-2 space-y-4">
                     <Label>اختر المدرس</Label>
                     {isLoadingTeachers ? (
                       <RadioOptionsSkeleton />
                     ) : (
+                      /* Responsive Radio Group */
                       <RadioGroup
                         value={selectedTeacherId}
                         onValueChange={setSelectedTeacherId}
@@ -361,13 +421,20 @@ export function ProductForm() {
                         disabled={isSavingProduct}
                       >
                         {teachers.map((teacher) => (
-                          <div key={teacher.id} className="flex items-center space-x-2 border p-4 rounded-lg">
-                            <RadioGroupItem value={teacher.id} id={teacher.id} disabled={isSavingProduct} />
+                          <div
+                            key={teacher.id}
+                            className="flex items-center space-x-2 border p-4 rounded-lg"
+                          >
+                            <RadioGroupItem
+                              value={teacher.id}
+                              id={teacher.id}
+                              disabled={isSavingProduct}
+                            />
                             <Label htmlFor={teacher.id} className="flex-1">
                               <div className="font-medium">{teacher.name}</div>
                               <div className="text-sm text-gray-500">
-                                العمولة: {teacher.teacherCommissionExpenseAccountId} |
-                                النسبة: {teacher.teacherPercentage}%
+                                العمولة: {teacher.teacherCommissionExpenseAccountId}{' '}
+                                | النسبة: {teacher.teacherPercentage}%
                               </div>
                             </Label>
                           </div>
@@ -375,9 +442,9 @@ export function ProductForm() {
                       </RadioGroup>
                     )}
                   </div>
-                  
+
                   {/* Advanced Settings Button */}
-                  <div className="col-span-2">
+                  <div className="col-span-1 sm:col-span-2">
                     <Button
                       type="button"
                       variant="ghost"
@@ -386,13 +453,17 @@ export function ProductForm() {
                       disabled={isSavingProduct}
                     >
                       إعدادات متقدمة
-                      {showAdvanced ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
+                      {showAdvanced ? (
+                        <ChevronUp className="ml-2 h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="ml-2 h-4 w-4" />
+                      )}
                     </Button>
                   </div>
 
                   {/* Advanced Settings Section */}
                   {showAdvanced && (
-                    <div className="col-span-2 space-y-4 border-t pt-4">
+                    <div className="col-span-1 sm:col-span-2 space-y-4 border-t pt-4">
                       <div className="space-y-2">
                         <Label htmlFor="customTeacherPercentage">
                           نسبة المدرس المخصصة (تتجاوز الافتراضي)
@@ -403,11 +474,13 @@ export function ProductForm() {
                           step="0.01"
                           value={customTeacherPercentage || ''}
                           onChange={(e) => {
-                            const value = e.target.value ? Number(e.target.value) : null;
+                            const value = e.target.value
+                              ? Number(e.target.value)
+                              : null;
                             setCustomTeacherPercentage(value);
-                            setProductForm(prev => ({
+                            setProductForm((prev) => ({
                               ...prev,
-                              teacherPercentage: value
+                              teacherPercentage: value,
                             }));
                           }}
                           placeholder="أدخل النسبة المخصصة"
@@ -436,72 +509,92 @@ export function ProductForm() {
                 </Button>
               </form>
 
-              {isLoadingProducts ? (
-                <ProductsTableSkeleton />
-              ) : (
-                <Table className="mt-8">
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>اسم المنتج</TableHead>
-                      <TableHead>حساب الإيرادات</TableHead>
-                      <TableHead>حساب العمولة</TableHead>
-                      <TableHead>نسبة المدرس</TableHead>
-                      <TableHead>حساب المسؤولية</TableHead>
-                      <TableHead>الإجراءات</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {products.length === 0 ? (
+              {/* Responsive Table Container */}
+              <div className="mt-8 overflow-x-auto">
+                {isLoadingProducts ? (
+                  <ProductsTableSkeleton />
+                ) : (
+                  <Table className="w-full">
+                    <TableHeader>
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-6 text-gray-500">
-                          لا توجد منتجات. أضف منتجًا جديدًا باستخدام النموذج أعلاه.
-                        </TableCell>
+                        <TableHead>اسم المنتج</TableHead>
+                        <TableHead>حساب الإيرادات</TableHead>
+                        <TableHead>حساب العمولة</TableHead>
+                        <TableHead>نسبة المدرس</TableHead>
+                        <TableHead>حساب المسؤولية</TableHead>
+                        <TableHead>الإجراءات</TableHead>
                       </TableRow>
-                    ) : (
-                      products.map((product) => (
-                        <TableRow key={product.id}>
-                          <TableCell>{product.productName}</TableCell>
-                          <TableCell>{product.productRevenueAccountId}</TableCell>
-                          <TableCell>{product.teacherCommissionExpenseAccountId}</TableCell>
-                          <TableCell>{product.teacherPercentage}%</TableCell>
-                          <TableCell>{product.teacherPercentageLiabilityAccountId}</TableCell>
-                          <TableCell>
-                            <div className="flex space-x-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setEditingProduct(product);
-                                }}
-                                disabled={isDeletingProduct === product.id || isSavingProduct}
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleDeleteProduct(product.id!)}
-                                disabled={isDeletingProduct === product.id || isSavingProduct}
-                              >
-                                {isDeletingProduct === product.id ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                                  <Trash2 className="h-4 w-4" />
-                                )}
-                              </Button>
-                            </div>
+                    </TableHeader>
+                    <TableBody>
+                      {products.length === 0 ? (
+                        <TableRow>
+                          <TableCell
+                            colSpan={6}
+                            className="text-center py-6 text-gray-500"
+                          >
+                            لا توجد منتجات. أضف منتجًا جديدًا باستخدام النموذج
+                            أعلاه.
                           </TableCell>
                         </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              )}
+                      ) : (
+                        products.map((product) => (
+                          <TableRow key={product.id}>
+                            <TableCell>{product.productName}</TableCell>
+                            <TableCell>
+                              {product.productRevenueAccountId}
+                            </TableCell>
+                            <TableCell>
+                              {product.teacherCommissionExpenseAccountId}
+                            </TableCell>
+                            <TableCell>{product.teacherPercentage}%</TableCell>
+                            <TableCell>
+                              {product.teacherPercentageLiabilityAccountId}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex space-x-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setEditingProduct(product);
+                                  }}
+                                  disabled={
+                                    isDeletingProduct === product.id ||
+                                    isSavingProduct
+                                  }
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDeleteProduct(product.id!)}
+                                  disabled={
+                                    isDeletingProduct === product.id ||
+                                    isSavingProduct
+                                  }
+                                >
+                                  {isDeletingProduct === product.id ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <Trash2 className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                )}
+              </div>
             </TabsContent>
 
             <TabsContent value="teachers">
               <form onSubmit={handleTeacherSubmit} className="space-y-6">
-                <div className="grid grid-cols-2 gap-6">
+                {/* Responsive Grid for Form Inputs */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="teacherName">اسم المدرس</Label>
                     <Input
@@ -525,7 +618,9 @@ export function ProductForm() {
                       onChange={(e) =>
                         setTeacherForm({
                           ...teacherForm,
-                          teacherCommissionExpenseAccountId: Number(e.target.value),
+                          teacherCommissionExpenseAccountId: Number(
+                            e.target.value
+                          ),
                         })
                       }
                       placeholder="أدخل معرف حساب العمولة"
@@ -556,11 +651,15 @@ export function ProductForm() {
                     <Input
                       id="teacherPercentageLiabilityAccountId"
                       type="number"
-                      value={teacherForm.teacherPercentageLiabilityAccountId || ''}
+                      value={
+                        teacherForm.teacherPercentageLiabilityAccountId || ''
+                      }
                       onChange={(e) =>
                         setTeacherForm({
                           ...teacherForm,
-                          teacherPercentageLiabilityAccountId: Number(e.target.value),
+                          teacherPercentageLiabilityAccountId: Number(
+                            e.target.value
+                          ),
                         })
                       }
                       placeholder="أدخل معرف حساب مسؤولية النسبة"
@@ -568,7 +667,11 @@ export function ProductForm() {
                     />
                   </div>
                 </div>
-                <Button type="submit" className="w-full" disabled={isSavingTeacher}>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isSavingTeacher}
+                >
                   {isSavingTeacher ? (
                     <>
                       <Loader2 className="ml-2 h-4 w-4 animate-spin" />
@@ -587,63 +690,80 @@ export function ProductForm() {
                 </Button>
               </form>
 
-              {isLoadingTeachers ? (
-                <TeachersTableSkeleton />
-              ) : (
-                <Table className="mt-8">
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>الاسم</TableHead>
-                      <TableHead>حساب العمولة</TableHead>
-                      <TableHead>النسبة</TableHead>
-                      <TableHead>حساب المسؤولية</TableHead>
-                      <TableHead>الإجراءات</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {teachers.length === 0 ? (
+              {/* Responsive Table Container */}
+              <div className="mt-8 overflow-x-auto">
+                {isLoadingTeachers ? (
+                  <TeachersTableSkeleton />
+                ) : (
+                  <Table className="w-full">
+                    <TableHeader>
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-6 text-gray-500">
-                          لا يوجد مدرسون. أضف مدرسًا جديدًا باستخدام النموذج أعلاه.
-                        </TableCell>
+                        <TableHead>الاسم</TableHead>
+                        <TableHead>حساب العمولة</TableHead>
+                        <TableHead>النسبة</TableHead>
+                        <TableHead>حساب المسؤولية</TableHead>
+                        <TableHead>الإجراءات</TableHead>
                       </TableRow>
-                    ) : (
-                      teachers.map((teacher) => (
-                        <TableRow key={teacher.id}>
-                          <TableCell>{teacher.name}</TableCell>
-                          <TableCell>{teacher.teacherCommissionExpenseAccountId}</TableCell>
-                          <TableCell>{teacher.teacherPercentage}%</TableCell>
-                          <TableCell>{teacher.teacherPercentageLiabilityAccountId}</TableCell>
-                          <TableCell>
-                            <div className="flex space-x-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setEditingTeacher(teacher)}
-                                disabled={isDeletingTeacher === teacher.id || isSavingTeacher}
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleDeleteTeacher(teacher.id)}
-                                disabled={isDeletingTeacher === teacher.id || isSavingTeacher}
-                              >
-                                {isDeletingTeacher === teacher.id ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                                  <Trash2 className="h-4 w-4" />
-                                )}
-                              </Button>
-                            </div>
+                    </TableHeader>
+                    <TableBody>
+                      {teachers.length === 0 ? (
+                        <TableRow>
+                          <TableCell
+                            colSpan={5}
+                            className="text-center py-6 text-gray-500"
+                          >
+                            لا يوجد مدرسون. أضف مدرسًا جديدًا باستخدام النموذج
+                            أعلاه.
                           </TableCell>
                         </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              )}
+                      ) : (
+                        teachers.map((teacher) => (
+                          <TableRow key={teacher.id}>
+                            <TableCell>{teacher.name}</TableCell>
+                            <TableCell>
+                              {teacher.teacherCommissionExpenseAccountId}
+                            </TableCell>
+                            <TableCell>{teacher.teacherPercentage}%</TableCell>
+                            <TableCell>
+                              {teacher.teacherPercentageLiabilityAccountId}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex space-x-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setEditingTeacher(teacher)}
+                                  disabled={
+                                    isDeletingTeacher === teacher.id ||
+                                    isSavingTeacher
+                                  }
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDeleteTeacher(teacher.id)}
+                                  disabled={
+                                    isDeletingTeacher === teacher.id ||
+                                    isSavingTeacher
+                                  }
+                                >
+                                  {isDeletingTeacher === teacher.id ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <Trash2 className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                )}
+              </div>
             </TabsContent>
           </Tabs>
         </CardContent>
