@@ -1,4 +1,3 @@
-// ProductForm.txt
 import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -42,7 +41,6 @@ interface Product {
   teacherCommissionExpenseAccountId: number | null;
   teacherPercentage: number | null;
   teacherPercentageLiabilityAccountId: number | null;
-  productRevenueAccountId: number | null;
 }
 
 const API_HEADERS = {
@@ -77,7 +75,6 @@ export function ProductForm() {
     teacherCommissionExpenseAccountId: null,
     teacherPercentage: null,
     teacherPercentageLiabilityAccountId: null,
-    productRevenueAccountId: null,
   });
 
   const [teacherForm, setTeacherForm] = useState<Omit<Teacher, 'id'>>({
@@ -138,7 +135,6 @@ export function ProductForm() {
         teacherCommissionExpenseAccountId: null,
         teacherPercentage: null,
         teacherPercentageLiabilityAccountId: null,
-        productRevenueAccountId: null,
       });
       setSelectedTeacherId('');
       setCustomTeacherPercentage(null);
@@ -228,7 +224,6 @@ export function ProductForm() {
           teacherCommissionExpenseAccountId: null,
           teacherPercentage: null,
           teacherPercentageLiabilityAccountId: null,
-          productRevenueAccountId: null,
         });
         setSelectedTeacherId('');
         setCustomTeacherPercentage(null);
@@ -372,7 +367,7 @@ export function ProductForm() {
             <TabsContent value="products">
               <form onSubmit={handleProductSubmit} className="space-y-6">
                 {/* Responsive Grid for Form Inputs */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="productName">اسم المنتج</Label>
                     <Input
@@ -385,26 +380,6 @@ export function ProductForm() {
                         })
                       }
                       placeholder="أدخل اسم المنتج"
-                      disabled={isSavingProduct}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="productRevenueAccountId">
-                      معرف حساب إيرادات المنتج
-                    </Label>
-                    <Input
-                      id="productRevenueAccountId"
-                      type="number"
-                      value={productForm.productRevenueAccountId || ''}
-                      onChange={(e) =>
-                        setProductForm({
-                          ...productForm,
-                          productRevenueAccountId: e.target.value
-                            ? Number(e.target.value)
-                            : null,
-                        })
-                      }
-                      placeholder="أدخل معرف الحساب"
                       disabled={isSavingProduct}
                     />
                   </div>
@@ -518,7 +493,6 @@ export function ProductForm() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>اسم المنتج</TableHead>
-                        <TableHead>حساب الإيرادات</TableHead>
                         <TableHead>حساب العمولة</TableHead>
                         <TableHead>نسبة المدرس</TableHead>
                         <TableHead>حساب المسؤولية</TableHead>
@@ -529,7 +503,7 @@ export function ProductForm() {
                       {products.length === 0 ? (
                         <TableRow>
                           <TableCell
-                            colSpan={6}
+                            colSpan={5}
                             className="text-center py-6 text-gray-500"
                           >
                             لا توجد منتجات. أضف منتجًا جديدًا باستخدام النموذج
@@ -540,9 +514,6 @@ export function ProductForm() {
                         products.map((product) => (
                           <TableRow key={product.id}>
                             <TableCell>{product.productName}</TableCell>
-                            <TableCell>
-                              {product.productRevenueAccountId}
-                            </TableCell>
                             <TableCell>
                               {product.teacherCommissionExpenseAccountId}
                             </TableCell>
