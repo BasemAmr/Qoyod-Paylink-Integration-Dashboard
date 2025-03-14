@@ -33,6 +33,7 @@ interface Teacher {
   teacherPercentageLiabilityAccountId: number;
   teacherCommissionExpenseAccountId: number;
   teacherPercentage: number;
+  teacherPercentageExpenseAccountId: number; // New field
 }
 
 interface Product {
@@ -41,6 +42,7 @@ interface Product {
   teacherCommissionExpenseAccountId: number | null;
   teacherPercentage: number | null;
   teacherPercentageLiabilityAccountId: number | null;
+  teacherPercentageExpenseAccountId: number | null; // New field
 }
 
 const API_HEADERS = {
@@ -75,6 +77,7 @@ export function ProductForm() {
     teacherCommissionExpenseAccountId: null,
     teacherPercentage: null,
     teacherPercentageLiabilityAccountId: null,
+    teacherPercentageExpenseAccountId: null, // Initialize new field
   });
 
   const [teacherForm, setTeacherForm] = useState<Omit<Teacher, 'id'>>({
@@ -82,6 +85,7 @@ export function ProductForm() {
     teacherPercentageLiabilityAccountId: 0,
     teacherCommissionExpenseAccountId: 0,
     teacherPercentage: 0,
+    teacherPercentageExpenseAccountId: 0, // Initialize new field
   });
 
   useEffect(() => {
@@ -101,6 +105,8 @@ export function ProductForm() {
             customTeacherPercentage ?? selectedTeacher.teacherPercentage,
           teacherPercentageLiabilityAccountId:
             selectedTeacher.teacherPercentageLiabilityAccountId,
+          teacherPercentageExpenseAccountId:
+            selectedTeacher.teacherPercentageExpenseAccountId, // Set from selected teacher
         }));
       }
     }
@@ -110,17 +116,18 @@ export function ProductForm() {
     if (editingProduct) {
       setProductForm(editingProduct);
       setCustomTeacherPercentage(editingProduct.teacherPercentage);
-      // Find and set the teacher based on the product's fields for radio selection
+      // Find and set the teacher based on the product's fields
       const matchingTeacher = teachers.find(
         (t) =>
           t.teacherCommissionExpenseAccountId ===
             editingProduct.teacherCommissionExpenseAccountId &&
           t.teacherPercentageLiabilityAccountId ===
-            editingProduct.teacherPercentageLiabilityAccountId
+            editingProduct.teacherPercentageLiabilityAccountId &&
+          t.teacherPercentageExpenseAccountId ===
+            editingProduct.teacherPercentageExpenseAccountId // Check new field
       );
       if (matchingTeacher) {
         setSelectedTeacherId(matchingTeacher.id);
-        // If the percentage differs from the teacher's default, show advanced section
         if (
           editingProduct.teacherPercentage !== matchingTeacher.teacherPercentage
         ) {
@@ -135,6 +142,7 @@ export function ProductForm() {
         teacherCommissionExpenseAccountId: null,
         teacherPercentage: null,
         teacherPercentageLiabilityAccountId: null,
+        teacherPercentageExpenseAccountId: null, // Reset new field
       });
       setSelectedTeacherId('');
       setCustomTeacherPercentage(null);
@@ -151,6 +159,8 @@ export function ProductForm() {
         teacherCommissionExpenseAccountId:
           editingTeacher.teacherCommissionExpenseAccountId,
         teacherPercentage: editingTeacher.teacherPercentage,
+        teacherPercentageExpenseAccountId:
+          editingTeacher.teacherPercentageExpenseAccountId, // Set new field
       });
     } else {
       setTeacherForm({
@@ -158,6 +168,7 @@ export function ProductForm() {
         teacherPercentageLiabilityAccountId: 0,
         teacherCommissionExpenseAccountId: 0,
         teacherPercentage: 0,
+        teacherPercentageExpenseAccountId: 0, // Reset new field
       });
     }
   }, [editingTeacher]);
@@ -224,6 +235,7 @@ export function ProductForm() {
           teacherCommissionExpenseAccountId: null,
           teacherPercentage: null,
           teacherPercentageLiabilityAccountId: null,
+          teacherPercentageExpenseAccountId: null, // Reset new field on submit
         });
         setSelectedTeacherId('');
         setCustomTeacherPercentage(null);
@@ -261,6 +273,7 @@ export function ProductForm() {
           teacherPercentageLiabilityAccountId: 0,
           teacherCommissionExpenseAccountId: 0,
           teacherPercentage: 0,
+          teacherPercentageExpenseAccountId: 0, // Reset new field
         });
         setEditingTeacher(null);
       }
@@ -411,6 +424,10 @@ export function ProductForm() {
                                 العمولة: {teacher.teacherCommissionExpenseAccountId}{' '}
                                 | النسبة: {teacher.teacherPercentage}%
                               </div>
+                              <div className="text-sm text-gray-500">
+                                {/* Display new field */}
+                                 حساب مصروف النسبة: {teacher.teacherPercentageExpenseAccountId}
+                              </div>
                             </Label>
                           </div>
                         ))}
@@ -496,6 +513,7 @@ export function ProductForm() {
                         <TableHead>حساب العمولة</TableHead>
                         <TableHead>نسبة المدرس</TableHead>
                         <TableHead>حساب المسؤولية</TableHead>
+                        <TableHead>حساب مصروف النسبة</TableHead> {/* New Field */}
                         <TableHead>الإجراءات</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -503,7 +521,7 @@ export function ProductForm() {
                       {products.length === 0 ? (
                         <TableRow>
                           <TableCell
-                            colSpan={5}
+                            colSpan={6} // Updated colspan
                             className="text-center py-6 text-gray-500"
                           >
                             لا توجد منتجات. أضف منتجًا جديدًا باستخدام النموذج
@@ -520,6 +538,9 @@ export function ProductForm() {
                             <TableCell>{product.teacherPercentage}%</TableCell>
                             <TableCell>
                               {product.teacherPercentageLiabilityAccountId}
+                            </TableCell>
+                            <TableCell>
+                              {product.teacherPercentageExpenseAccountId}
                             </TableCell>
                             <TableCell>
                               <div className="flex space-x-2">
@@ -637,6 +658,27 @@ export function ProductForm() {
                       disabled={isSavingTeacher}
                     />
                   </div>
+                  {/* New Field Input */}
+                  <div className="space-y-2">
+                    <Label htmlFor="teacherPercentageExpenseAccountId">
+                      معرف حساب مصروف النسبة
+                    </Label>
+                    <Input
+                      id="teacherPercentageExpenseAccountId"
+                      type="number"
+                      value={teacherForm.teacherPercentageExpenseAccountId || ''}
+                      onChange={(e) =>
+                        setTeacherForm({
+                          ...teacherForm,
+                          teacherPercentageExpenseAccountId: Number(
+                            e.target.value
+                          ),
+                        })
+                      }
+                      placeholder="أدخل معرف حساب مصروف النسبة"
+                      disabled={isSavingTeacher}
+                    />
+                  </div>
                 </div>
                 <Button
                   type="submit"
@@ -673,6 +715,7 @@ export function ProductForm() {
                         <TableHead>حساب العمولة</TableHead>
                         <TableHead>النسبة</TableHead>
                         <TableHead>حساب المسؤولية</TableHead>
+                        <TableHead>حساب مصروف النسبة</TableHead> {/* New Field */}
                         <TableHead>الإجراءات</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -680,7 +723,7 @@ export function ProductForm() {
                       {teachers.length === 0 ? (
                         <TableRow>
                           <TableCell
-                            colSpan={5}
+                            colSpan={6}  //increased the col span by one
                             className="text-center py-6 text-gray-500"
                           >
                             لا يوجد مدرسون. أضف مدرسًا جديدًا باستخدام النموذج
@@ -697,6 +740,10 @@ export function ProductForm() {
                             <TableCell>{teacher.teacherPercentage}%</TableCell>
                             <TableCell>
                               {teacher.teacherPercentageLiabilityAccountId}
+                            </TableCell>
+                            {/* Display new field */}
+                            <TableCell>
+                              {teacher.teacherPercentageExpenseAccountId}
                             </TableCell>
                             <TableCell>
                               <div className="flex space-x-2">
